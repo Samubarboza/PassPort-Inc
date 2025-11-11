@@ -1,8 +1,9 @@
 import { CompactEncrypt, compactDecrypt } from 'jose';
 import { createSecretKey } from 'node:crypto';
 
+// Clave de 32 bytes en HEX (AES-256-GCM)
 const claveJWE = createSecretKey(
-    Buffer.from(process.env.CLAVE_SECRETA_JWE, 'utf8')
+    Buffer.from(process.env.CLAVE_SECRETA_JWE, 'hex')
 );
 
 export async function emitirTokenJWE({ idUsuario, rolUsuario }) {
@@ -11,10 +12,11 @@ export async function emitirTokenJWE({ idUsuario, rolUsuario }) {
         rolUsuario,
         emitidoEnISO: new Date().toISOString()
     }));
-    
+
     const jwe = await new CompactEncrypt(cargaUtil)
-    .setProtectedHeader({ alg: 'dir', enc: 'A256GCM', typ: 'JWT' })
-    .encrypt(claveJWE);
+        .setProtectedHeader({ alg: 'dir', enc: 'A256GCM', typ: 'JWT' })
+        .encrypt(claveJWE);
+
     return jwe;
 }
 

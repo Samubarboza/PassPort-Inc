@@ -6,6 +6,7 @@ export const modeloSesion = {
         const idSesion = crypto.randomUUID();
         const ahora = Math.floor(Date.now() / 1000);
         const expiraEnEpoch = ahora + minutosDuracion * 60;
+        
         conexionBaseDatos.prepare(`
             INSERT INTO sesiones (idSesion, idUsuario, expiraEnEpoch)
             VALUES (@idSesion, @idUsuario, @expiraEnEpoch)
@@ -17,13 +18,22 @@ export const modeloSesion = {
         const ahora = Math.floor(Date.now() / 1000);
         const sesion = conexionBaseDatos.prepare(`
             SELECT idSesion, idUsuario, expiraEnEpoch FROM sesiones WHERE idSesion = ?
-        `).get(idSesion);
-        
-        if (!sesion || sesion.expiraEnEpoch < ahora) return null;
-        return sesion;
+            `).get(idSesion);
+            
+            if (!sesion || sesion.expiraEnEpoch < ahora) return null;
+            return sesion;
     },
     
     eliminarSesion(idSesion) {
         conexionBaseDatos.prepare(`DELETE FROM sesiones WHERE idSesion = ?`).run(idSesion);
+    },
+    
+    buscarSesionPorId(idSesion) {
+        const stmt = conexionBaseDatos.prepare(
+            `SELECT idSesion, idUsuario, expiraEnEpoch FROM sesiones WHERE idSesion = ?`
+        );
+        
+        const sesion = stmt.get(idSesion);
+        return sesion || null;
     }
 };

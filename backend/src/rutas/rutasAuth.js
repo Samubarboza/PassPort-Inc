@@ -42,13 +42,24 @@ router.post('/inicio-sesion', proteccionCSRF, limiteIntentosInicioSesion, async 
         const { correoElectronico, contrasenaPlano, preferirJWT } = req.body;
         const { correoSanitizado, contrasenaSanitizada } = validarCorreoYContrasena({ correoElectronico, contrasenaPlano });
         const usuario = modeloUsuario.buscarUsuarioPorCorreo(correoSanitizado);
-        if (!usuario) return res.status(401).json(respuestasEstandar.error('credencialesInvalidas'));
+        
+        if (!usuario)
+            return res.status(401).json(respuestasEstandar.error('credencialesInvalidas'));
+        
         const coincide = await bcrypt.compare(contrasenaSanitizada, usuario.hashContrasena);
-        if (!coincide) return res.status(401).json(respuestasEstandar.error('credencialesInvalidas'));
+        
+        if (!coincide)
+            return res.status(401).json(respuestasEstandar.error('credencialesInvalidas'));
         
         if (preferirJWT) {
-            const tokenJWE = await emitirTokenJWE({ idUsuario: usuario.id, rolUsuario: usuario.rolUsuario });
-            return res.json(respuestasEstandar.ok({ tokenJWE }));
+            try {
+                const tokenJWE = await emitirTokenJWE({ idUsuario: usuario.id, rolUsuario: usuario.rolUsuario });
+                return res.json(respuestasEstandar.ok({ tokenJWE }));
+            } catch (error) {
+                console.error('Error emitiendo JWE:', error);
+                return res.status(500).json(respuestasEstandar.error('errorEmitiendoJWE'));
+            }
+        
         } else {
             const { idSesion, expiraEnEpoch } = modeloSesion.crearSesionParaUsuario(
                 usuario.id, Number(process.env.DURACION_MINUTOS_SESION)
