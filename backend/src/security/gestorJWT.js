@@ -1,7 +1,7 @@
 import { CompactEncrypt, compactDecrypt } from 'jose';
 import { createSecretKey } from 'node:crypto';
 
-// Clave de 32 bytes en HEX (AES-256-GCM)
+// clave de 32 bytes en HEX (AES-256-GCM)
 const claveJWE = createSecretKey(
     Buffer.from(process.env.CLAVE_SECRETA_JWE, 'hex')
 );

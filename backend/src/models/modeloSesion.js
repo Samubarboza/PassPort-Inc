@@ -1,4 +1,4 @@
-import { conexionBaseDatos } from '../baseDatos/conexionBaseDatos.js';
+import { conexionBaseDatos } from '../database/conexionBaseDatos.js';
 import crypto from 'node:crypto';
 
 export const modeloSesion = {

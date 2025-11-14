@@ -3,15 +3,15 @@ import express from 'express';
 import helmet from 'helmet'; // paquete para agregar cabeceras de seguridad al servidor
 import cookieParser from 'cookie-parser'; // permite leer cookies en las peticiones
 import cors from 'cors'; // permite que el front se comunique con el back aunque esten en dominios distintos
-import rutasAuth from './rutas/rutasAuth.js';
-import rutasPrivadas from './rutas/rutasPrivadas.js';
+import rutasAuth from './routes/routesAuth.js';
+import rutasPrivadas from './routes/rutasPrivadas.js';
 import { crearAdministradorPorDefectoSiNoExiste } from './iniciarBaseDatos.js';
 
 // creamos nuestra aplicacion express
 const aplicacionServidor = express();
 
-// helmet usamos como middlewares, libreria de seguridad para express - usa cabeceras http
-// contentSecurity es una barrera de seguridad que agrega helmet al servidor - esto desabilita algunas 
+// helmet usamos como middlewares, libreria de seguridad para express - usa y gestiona varias cabeceras http para seguridad
+// contentSecurity es una barrera de seguridad que agrega helmet al servidor - esto desabilita algunas - el navegador puede cargar contenido desde cualquier lugar sin limites. si no tenemos esto basicamente 
 aplicacionServidor.use(helmet({ contentSecurityPolicy: false }));
 // middleware que lee y convierte json a un objeto js
 aplicacionServidor.use(express.json());
@@ -24,7 +24,7 @@ aplicacionServidor.use(cors({
     credentials: true
 }));
 // ruta llamada estado, cuando alguien entra a esta direccion el servidor responde con un json
-aplicacionServidor.get('/estado', (req, res) => res.json({ ok:true, mensaje:'servidor Operativo' }));
+aplicacionServidor.get('/estado', (req, res) => res.json({ ok:true, mensaje:'servidor operativo' }));
 
 // conectamos las rutas al servidor principal
 // le decimos a express que esta ruta la maneje con rutasAuth

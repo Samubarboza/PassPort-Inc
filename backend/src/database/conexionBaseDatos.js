@@ -1,4 +1,5 @@
-import Database from 'better-sqlite3';
+import Database from 'better-sqlite3'; // libreria de node para trabajar con sqlite
+// objeto javascript que representa mi conexion a la base de datos
 const conexionBaseDatos = new Database('passPortInc.db');
 
 conexionBaseDatos.exec(`
