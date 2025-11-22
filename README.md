@@ -1,52 +1,21 @@
 
-┌──────────────────────────────┐
-│ 1. Usuario manda login        │
-│    (correo + contraseña)      │
-└───────────────┬──────────────┘
-                │
-                ▼
-┌──────────────────────────────┐
-│ 2. validarCorreoYContrasena  │
-│   - sanitiza texto           │
-│   - valida formato           │
-│   - valida longitud          │
-└───────────────┬──────────────┘
-     error ─────┘          │ ok
-                            ▼
-┌──────────────────────────────┐
-│ 3. modeloUsuario.buscar...   │
-│   - busca usuario por correo │
-└───────────────┬──────────────┘
-     no existe ─┘          │ existe
-                            ▼
-┌──────────────────────────────┐
-│ 4. bcrypt.compare            │
-│   - compara contraseña hash  │
-└───────────────┬──────────────┘
- contraseña mal ┘           │ correcta
-                            ▼
-┌──────────────────────────────┐
-│ 5. modeloSesion.crear...     │
-│   - crea idSesion            │
-│   - calcula expiración       │
-│   - guarda en DB             │
-└───────────────┬──────────────┘
-                ▼
-┌──────────────────────────────┐
-│ 6. res.cookie(...)            │
-│   - guarda idSesion en cookie│
-└───────────────┬──────────────┘
-                ▼
-┌──────────────────────────────┐
-│ 7. respuestasEstandar.ok     │
-│   - arma respuesta final     │
-└───────────────┬──────────────┘
-                ▼
-┌──────────────────────────────┐
-│ 8. res.json(...)              │
-│   - ENVÍA una sola respuesta │
-│     al frontend              │
-└──────────────────────────────┘
+flowchart TD
+
+A[1. Usuario envía login<br/>(correo + contraseña)] --> B
+
+B[2. validarCorreoYContrasena<br/>- sanitiza<br/>- valida formato<br/>- valida longitud] --> C
+
+C[3. Buscar usuario en DB<br/>modeloUsuario.buscar...] --> D
+
+D[4. bcrypt.compare<br/>- compara hash] --> E
+
+E[5. Crear sesión<br/>- genera idSesion<br/>- guarda en DB] --> F
+
+F[6. Guardar cookie segura<br/>res.cookie(...)] --> G
+
+G[7. Armar respuesta estándar<br/>respuestasEstandar.ok] --> H
+
+H[8. res.json(...): enviar respuesta final]
 
 # VERSIÓN EN PALABRAS
 
