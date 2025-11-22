@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3'; // libreria de node para trabajar con sqlite
-// objeto javascript que representa mi conexion a la base de datos
+// objeto javascript que representa mi conexion a la base de datos y poder hacer consultas
 const conexionBaseDatos = new Database('passPortInc.db');
 
+// configuracion y creacion de tabla en bloque
 conexionBaseDatos.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;

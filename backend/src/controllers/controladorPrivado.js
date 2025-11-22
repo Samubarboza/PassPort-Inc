@@ -1,4 +1,3 @@
-// controladorPrivado.js
 import { modeloSesion } from '../models/modeloSesion.js';
 import { modeloUsuario } from '../models/modeloUsuario.js';
 import { respuestasEstandar } from '../utils/respuestasEstandar.js';

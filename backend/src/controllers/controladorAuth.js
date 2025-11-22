@@ -1,19 +1,20 @@
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
-
 import { modeloUsuario } from '../models/modeloUsuario.js';
 import { modeloSesion } from '../models/modeloSesion.js';
 import { validarCorreoYContrasena } from '../security/validarEntradas.js';
 import { emitirTokenJWE } from '../security/gestorJWT.js';
 import { respuestasEstandar } from '../utils/respuestasEstandar.js';
 
+// middleware para limitar el inicio de sesión a 5 intentos cada 10 minutos para evitar ataques de fuerza bruta.
 export const limiteIntentosInicioSesion = rateLimit({
-    windowMs: 10 * 60 * 1000,
-    max: 5,
+    windowMs: 10 * 60 * 1000, 
+    max: 5, // maximos intentos
     standardHeaders: true,
     legacyHeaders: false
 });
 
+// este controlador obtiene el token generador por el middleware y lo devuelve
 export function controladorCSRF(req, res) {
     res.json(respuestasEstandar.ok({ tokenCSRFParaFormulario: req.csrfToken() }));
 }
@@ -38,7 +39,7 @@ export async function controladorRegistro(req, res) {
             hashContrasena,
             rolUsuario: 'Usuario'
         });
-
+        // armamos un json con los datos del usurio nuevo y mandamos al frontedn 
         res.json(respuestasEstandar.ok({ idUsuario: nuevo.id, correoElectronico: nuevo.correoElectronico })
         );
     } catch (e) {
@@ -46,6 +47,7 @@ export async function controladorRegistro(req, res) {
     }
 }
 
+//controlador que se encarga de iniciar sesion
 export async function controladorInicioSesion(req, res) {
     try {
         const { correoElectronico, contrasenaPlano, preferirJWT } = req.body;
@@ -62,12 +64,13 @@ export async function controladorInicioSesion(req, res) {
         if (!coincide)
             return res.status(401).json(respuestasEstandar.error('credenciales invalidas'));
 
+// si el usuario prefiere jwt
         if (preferirJWT) {
-            try {
+            try { // intentamos generar el token con la funcion y le pasamos los datos del usuario
                 const tokenJWE = await emitirTokenJWE({ idUsuario: usuario.id,
                     rolUsuario: usuario.rolUsuario
                 });
-
+// retornamos respuesta de exito con el token generado
                 return res.json(respuestasEstandar.ok({ tokenJWE }));
             } catch (error) {
                 console.error('Error emitiendo JWE:', error);
@@ -75,6 +78,7 @@ export async function controladorInicioSesion(req, res) {
         } else {
             const { idSesion, expiraEnEpoch } = modeloSesion.crearSesionParaUsuario(usuario.id,Number(process.env.DURACION_MINUTOS_SESION));
 
+            // creamos una cookie con nombre idSesionSeguro y le pasamos como valor el id que creamos
             res.cookie('idSesionSeguro', idSesion, {
                 httpOnly: true,
                 secure: process.env.NIVEL_ENTORNO === 'produccion',
@@ -82,6 +86,7 @@ export async function controladorInicioSesion(req, res) {
                 path: '/'
             });
 
+            // mandamos una respuesta al front con los datos de la sesion que se inicia
             return res.json(respuestasEstandar.ok({
                 sesionExpiraEnEpoch: expiraEnEpoch,
                 idUsuario: usuario.id,
@@ -89,10 +94,11 @@ export async function controladorInicioSesion(req, res) {
             );
         }
     } catch {
+        // si hay un error, enviamos este mensaje
         res.status(400).json(respuestasEstandar.error('error inicio sesion'));
     }
 }
-
+// controlador para cerrar sesion
 export function controladorCerrarSesion(req, res) {
     const idSesion = req.cookies?.idSesionSeguro;
     if (idSesion) modeloSesion.eliminarSesion(idSesion);

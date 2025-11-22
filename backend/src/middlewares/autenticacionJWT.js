@@ -1,5 +1,6 @@
 import { verificarTokenJWE } from '../security/gestorJWT.js';
 
+// este middleware verifica el token y agrega una nueva propiedad a la request - despues la ejecucion pasa al siguiente middleware 
 export async function requerirJWTValido(req, res, next) {
     try {
         const encabezado = req.headers['authorization'] || '';
